@@ -1,0 +1,16 @@
+{
+  "name": "சாம்பியன் டிராக்கர்",
+  "short_name": "சாம்பியன்",
+  "description": "Champion Mindset தினசரி பழக்க டிராக்கர்",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#121a16",
+  "theme_color": "#121a16",
+  "lang": "ta",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
