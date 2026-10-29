@@ -579,6 +579,55 @@ setTab("today");
 })();
 </script>
 
-<script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
+<div class="inst-back" id="instBack" hidden>
+  <div class="inst" role="dialog" aria-modal="true" aria-labelledby="instTitle">
+    <img src="icon-192.png" alt="" width="72" height="72">
+    <h2 id="instTitle">சாம்பியன் டிராக்கரை ஆப்பா இன்ஸ்டால் பண்ணுங்க</h2>
+    <p id="instText">போன் ஹோம் ஸ்கிரீனில் ஐகான் வரும். ஒரே தொடுதலில் திறக்கலாம், இணையம் இல்லாமலும் வேலை செய்யும்.</p>
+    <ol id="instSteps" hidden></ol>
+    <button class="primary" id="instGo">📲 இன்ஸ்டால் செய்</button>
+    <button class="small" id="instLater">பிறகு</button>
+  </div>
+</div>
+<style>
+.inst-back{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:16px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.inst-back[hidden]{display:none!important}
+.inst{width:100%;max-width:440px;background:var(--card);color:var(--fg);border-radius:22px;padding:22px 18px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;animation:up .25s ease-out}
+.inst img{border-radius:18px}
+.inst h2{font-family:var(--display);font-size:1.2rem;margin:0;text-wrap:balance}
+.inst p{margin:0;color:var(--muted);font-size:.92rem}
+.inst ol{text-align:left;margin:0;padding-left:22px;font-size:.92rem;display:flex;flex-direction:column;gap:4px}
+.inst .primary{width:100%;font-size:1.05rem}
+.inst .small{width:100%;padding:10px}
+@keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.inst{animation:none}}
+</style>
+<script>
+if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
+(function(){
+  const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+  if(standalone) return;
+  let later=0; try{later=+localStorage.getItem("cmt-inst-later")||0}catch(e){}
+  const back=document.getElementById("instBack"), go=document.getElementById("instGo"), steps=document.getElementById("instSteps");
+  const ua=navigator.userAgent, ios=/iphone|ipad|ipod/i.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
+  let deferred=null, shown=false;
+  const show=()=>{ if(shown) return; if(Date.now()-later<6*36e5) return; shown=true; back.hidden=false; go.focus(); };
+  const manual=list=>{steps.innerHTML=list.map(x=>"<li>"+x+"</li>").join("");steps.hidden=false};
+  addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;steps.hidden=true;go.textContent="📲 இன்ஸ்டால் செய்";go.onclick=install;show()});
+  addEventListener("appinstalled",()=>{back.hidden=true;deferred=null});
+  const install=async()=>{
+    if(deferred){deferred.prompt();const r=await deferred.userChoice.catch(()=>({}));deferred=null;
+      if(r&&r.outcome==="accepted"){back.hidden=true}else{go.textContent="மீண்டும் முயற்சி"}
+      return}
+    if(ios) manual(["கீழே உள்ள <b>Share</b> (⬆️) பட்டனைத் தொடுங்க","<b>Add to Home Screen</b> தேர்வு செய்யுங்க","<b>Add</b> தொடுங்க"]);
+    else manual(["மேலே வலது மூலையில் <b>⋮</b> மெனுவைத் தொடுங்க","<b>Install app</b> அல்லது <b>Add to Home screen</b> தொடுங்க","<b>Install</b> தொடுங்க"]);
+    go.textContent="சரி, புரிந்தது";go.onclick=()=>{back.hidden=true};
+  };
+  go.onclick=install;
+  document.getElementById("instLater").onclick=()=>{back.hidden=true;try{localStorage.setItem("cmt-inst-later",Date.now())}catch(e){}};
+  // If the browser doesn't offer its own install prompt quickly, still ask and show manual steps.
+  setTimeout(show, ios?800:2500);
+})();
+</script>
 </body>
 </html>
